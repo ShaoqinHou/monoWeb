@@ -106,19 +106,21 @@ export const processAIRequest = async (userPrompt: string, image?: ImageAttachme
                     - Normalize times to 0-23.
                     - Identify "Peak" (Red), "Shoulder" (Orange), "Off-Peak" (Green), "Free" (Blue).
                     - "7am to 9am" means start: 7, end: 8.
+                    - ONLY extract information that is explicitly stated. If a field is not mentioned, use 0 for fixedDailyChargeCents. NEVER guess or hallucinate values.
                     - If broadband price is mentioned, include it in broadbandMonthlyCost (Dollars).
                     - If a joining credit is mentioned (e.g., "$300 credit"), put it in joiningCreditDollars.
                     - If a percentage discount is mentioned (e.g., "6% discount"), put it in discountPct.
 
                     CRITICAL RULES FOR dayType:
-                    - Rate lookup priority is: specific day > category > ALL. So you can set a WEEKDAY fallback and override just FRI.
+                    - Rate lookup priority is: specific day > category > ALL. So you can set a WEEKDAY fallback and override specific days.
                     - Use WEEKDAY/WEEKEND for rates that apply uniformly to all weekdays or weekends.
                     - Use specific days (MON, TUE, WED, THU, FRI, SAT, SUN) ONLY for days that differ from their category.
-                    - Example: "Free after 5pm Friday to 7am Monday" means:
-                      * WEEKDAY 0-23: Standard rate (base for Mon-Fri)
-                      * WEEKEND 0-23: Free (Sat & Sun all day)
-                      * FRI 17-23: Free (override Friday evening)
-                      * MON 0-6: Free (override Monday morning)
+                    - Example: "Half price 10pm-6am on Tuesdays and Wednesdays" means:
+                      * ALL 0-23: Standard rate (base for every day)
+                      * TUE 22-23: Half price (override Tue night)
+                      * TUE 0-5: Half price (override Tue early morning)
+                      * WED 22-23: Half price (override Wed night)
+                      * WED 0-5: Half price (override Wed early morning)
                 `,
                 tools: [{ functionDeclarations: [createPowerPlanTool, generateUsageProfileTool] }],
                 toolConfig: {
