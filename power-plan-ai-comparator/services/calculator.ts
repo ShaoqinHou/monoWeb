@@ -11,10 +11,14 @@ const getColorHex = (zoneColor: ZoneColor): string => {
   }
 };
 
-export const getZoneColorForHour = (plan: PowerPlan, hour: number): string => {
-    // Check weekday rule for visualization dominance
-    const rate = plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && (r.dayType === DayType.WEEKDAY || r.dayType === DayType.ALL));
-    if (!rate) return '#94a3b8'; 
+export const getZoneColorForHour = (plan: PowerPlan, hour: number, isWeekend: boolean = false): string => {
+    const dayType = isWeekend ? DayType.WEEKEND : DayType.WEEKDAY;
+    // Try specific day type first, then fall back to ALL
+    let rate = plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && r.dayType === dayType);
+    if (!rate) {
+        rate = plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && r.dayType === DayType.ALL);
+    }
+    if (!rate) return '#94a3b8';
     return getColorHex(rate.zoneColor);
 }
 
