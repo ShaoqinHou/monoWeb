@@ -32,7 +32,7 @@ const createPowerPlanTool: FunctionDeclaration = {
         }
       }
     },
-    required: ["name", "provider", "fixedDailyChargeCents", "rates"]
+    required: ["name", "provider", "rates"]
   }
 };
 
@@ -106,7 +106,7 @@ export const processAIRequest = async (userPrompt: string, image?: ImageAttachme
                     - Normalize times to 0-23.
                     - Identify "Peak" (Red), "Shoulder" (Orange), "Off-Peak" (Green), "Free" (Blue).
                     - "7am to 9am" means start: 7, end: 8.
-                    - ONLY extract information that is explicitly stated. If a field is not mentioned, use 0 for fixedDailyChargeCents. NEVER guess or hallucinate values.
+                    - ONLY extract information that is explicitly stated. Do not guess or assume values for optional fields.
                     - If broadband price is mentioned, include it in broadbandMonthlyCost (Dollars).
                     - If a joining credit is mentioned (e.g., "$300 credit"), put it in joiningCreditDollars.
                     - If a percentage discount is mentioned (e.g., "6% discount"), put it in discountPct.
@@ -141,6 +141,7 @@ export const processAIRequest = async (userPrompt: string, image?: ImageAttachme
                 return {
                     type: 'PLAN',
                     data: {
+                        fixedDailyChargeCents: 0,
                         ...planData,
                         id: `imported-${Date.now()}`,
                         description: 'Imported via AI Assistant'
