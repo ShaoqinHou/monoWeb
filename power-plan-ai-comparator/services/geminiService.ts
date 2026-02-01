@@ -24,7 +24,7 @@ const createPowerPlanTool: FunctionDeclaration = {
             startHour: { type: Type.NUMBER, description: "Start hour (0-23)" },
             endHour: { type: Type.NUMBER, description: "End hour (0-23)" },
             rateCents: { type: Type.NUMBER, description: "Cost in cents per kWh" },
-            dayType: { type: Type.STRING, enum: ["WEEKDAY", "WEEKEND", "ALL"] },
+            dayType: { type: Type.STRING, enum: ["WEEKDAY", "WEEKEND", "ALL", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"], description: "Use ALL for every day, WEEKDAY/WEEKEND for groups, or MON/TUE/WED/THU/FRI/SAT/SUN for specific days that differ from their group" },
             zoneName: { type: Type.STRING, description: "Name like 'Peak', 'Off-Peak', 'Night', 'Free'" },
             zoneColor: { type: Type.STRING, enum: ["PEAK", "SHOULDER", "OFF_PEAK", "FREE"] }
           },
@@ -66,7 +66,7 @@ export type AIResponse =
 
 export const processAIRequest = async (userPrompt: string, image?: ImageAttachment): Promise<AIResponse> => {
     try {
-        const model = 'gemini-2.5-flash';
+        const model = 'gemini-3-flash-preview';
 
         const parts: any[] = [];
         if (image) {
@@ -109,6 +109,16 @@ export const processAIRequest = async (userPrompt: string, image?: ImageAttachme
                     - If broadband price is mentioned, include it in broadbandMonthlyCost (Dollars).
                     - If a joining credit is mentioned (e.g., "$300 credit"), put it in joiningCreditDollars.
                     - If a percentage discount is mentioned (e.g., "6% discount"), put it in discountPct.
+
+                    CRITICAL RULES FOR dayType:
+                    - Rate lookup priority is: specific day > category > ALL. So you can set a WEEKDAY fallback and override just FRI.
+                    - Use WEEKDAY/WEEKEND for rates that apply uniformly to all weekdays or weekends.
+                    - Use specific days (MON, TUE, WED, THU, FRI, SAT, SUN) ONLY for days that differ from their category.
+                    - Example: "Free after 5pm Friday to 7am Monday" means:
+                      * WEEKDAY 0-23: Standard rate (base for Mon-Fri)
+                      * WEEKEND 0-23: Free (Sat & Sun all day)
+                      * FRI 17-23: Free (override Friday evening)
+                      * MON 0-6: Free (override Monday morning)
                 `,
                 tools: [{ functionDeclarations: [createPowerPlanTool, generateUsageProfileTool] }],
                 toolConfig: {

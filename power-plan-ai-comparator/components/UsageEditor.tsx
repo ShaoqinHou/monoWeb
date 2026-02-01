@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { UsageProfile, UsageMode, DayKey, PowerPlan, ZoneColor, DayType } from '../types';
+import { UsageProfile, UsageMode, DayKey, PowerPlan, ZoneColor } from '../types';
 import { DAY_KEYS, DAY_LABELS, WEEKDAY_KEYS, WEEKEND_KEYS } from '../constants';
-import { getZoneColorForHour } from '../services/calculator';
+import { getZoneColorForHour, findRate } from '../services/calculator';
 
 interface UsageEditorProps {
   usage: UsageProfile;
@@ -36,21 +36,15 @@ const UsageEditor: React.FC<UsageEditorProps> = ({ usage, setUsage, activePlan, 
         }
     };
 
-    const dayType = isWeekend ? DayType.WEEKEND : DayType.WEEKDAY;
-
     for (let i = 0; i < 24; i++) {
-        // Same lookup as calculator: try specific day type first, fall back to ALL
-        let rate = activePlan.rates.find(r => r.startHour <= i && r.endHour >= i && r.dayType === dayType);
-        if (!rate) {
-            rate = activePlan.rates.find(r => r.startHour <= i && r.endHour >= i && r.dayType === DayType.ALL);
-        }
+        const rate = findRate(activePlan, i, activeDay);
         if (rate) {
             visibleZones.set(rate.zoneName, getColor(rate.zoneColor));
         }
     }
 
     return Array.from(visibleZones.entries()).map(([label, color]) => ({ label, color }));
-  }, [activePlan, isWeekend]);
+  }, [activePlan, activeDay]);
 
 
   // Unified Paint Logic
@@ -208,7 +202,7 @@ const UsageEditor: React.FC<UsageEditorProps> = ({ usage, setUsage, activePlan, 
         {usage.map((val, i) => {
           const max = 5;
           const percentage = Math.min((val / max) * 100, 100);
-          const barColor = activePlan ? getZoneColorForHour(activePlan, i, isWeekend) : '#3b82f6';
+          const barColor = activePlan ? getZoneColorForHour(activePlan, i, activeDay) : '#3b82f6';
 
           return (
             <div

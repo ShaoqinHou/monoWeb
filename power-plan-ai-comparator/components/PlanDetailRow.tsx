@@ -30,10 +30,16 @@ const PlanDetailRow: React.FC<PlanDetailRowProps> = ({ plan, result, viewMode, i
   const displayFixed = result.breakdown.fixedCost * multiplier;
   const displayDiscount = result.breakdown.discountCost * multiplier;
 
+  const specificDayTypes = [DayType.MON, DayType.TUE, DayType.WED, DayType.THU, DayType.FRI, DayType.SAT, DayType.SUN];
+  const dayLabels: Record<string, string> = { MON: 'Monday', TUE: 'Tuesday', WED: 'Wednesday', THU: 'Thursday', FRI: 'Friday', SAT: 'Saturday', SUN: 'Sunday' };
+
   const groupedRates = {
     weekdays: plan.rates.filter(r => r.dayType === DayType.WEEKDAY).sort((a, b) => a.startHour - b.startHour),
     weekends: plan.rates.filter(r => r.dayType === DayType.WEEKEND).sort((a, b) => a.startHour - b.startHour),
     all: plan.rates.filter(r => r.dayType === DayType.ALL).sort((a, b) => a.startHour - b.startHour),
+    specificDays: specificDayTypes
+      .map(dt => ({ dayType: dt, rates: plan.rates.filter(r => r.dayType === dt).sort((a, b) => a.startHour - b.startHour) }))
+      .filter(g => g.rates.length > 0),
   };
 
   const formatTime = (start: number, end: number) => {
@@ -185,6 +191,12 @@ const PlanDetailRow: React.FC<PlanDetailRowProps> = ({ plan, result, viewMode, i
                   {groupedRates.weekends.map(renderRateRow)}
                 </div>
               )}
+              {groupedRates.specificDays.map(({ dayType, rates }) => (
+                <div key={dayType}>
+                  <span className="text-purple-400 text-[10px] font-bold">{dayLabels[dayType] || dayType}</span>
+                  {rates.map(renderRateRow)}
+                </div>
+              ))}
               <div className="flex justify-between pt-1 border-t border-slate-700 text-slate-400">
                 <span>Daily Charge</span>
                 <span className="text-slate-300">{plan.fixedDailyChargeCents}c/day</span>

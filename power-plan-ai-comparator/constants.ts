@@ -297,6 +297,13 @@ export const DAY_KEYS: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'su
 export const WEEKDAY_KEYS: DayKey[] = ['mon', 'tue', 'wed', 'thu', 'fri'];
 export const WEEKEND_KEYS: DayKey[] = ['sat', 'sun'];
 
+export const DAY_KEY_TO_DAY_TYPE: Record<DayKey, DayType> = {
+  mon: DayType.MON, tue: DayType.TUE, wed: DayType.WED, thu: DayType.THU,
+  fri: DayType.FRI, sat: DayType.SAT, sun: DayType.SUN,
+};
+
+export const SPECIFIC_DAY_TYPES = [DayType.MON, DayType.TUE, DayType.WED, DayType.THU, DayType.FRI, DayType.SAT, DayType.SUN];
+
 export const DAY_LABELS: Record<DayKey, string> = {
   mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun'
 };

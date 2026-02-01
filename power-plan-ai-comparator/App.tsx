@@ -4,9 +4,17 @@ import AIAssistant from './components/PlanImporter'; // Mobile fallback
 import AISidebar from './components/AISidebar';
 import CompanyCard, { CompanyGroup } from './components/CompanyCard';
 import UsagePatterns from './components/UsagePatterns';
-import { DEFAULT_PLANS, DEFAULT_WEEKLY_PROFILES, DAY_KEYS, WEEKDAY_KEYS, WEEKEND_KEYS } from './constants';
+import { DEFAULT_PLANS, DEFAULT_WEEKLY_PROFILES, DAY_KEYS, WEEKDAY_KEYS, WEEKEND_KEYS, SPECIFIC_DAY_TYPES } from './constants';
 import { calculateMonthlyCost } from './services/calculator';
 import { PowerPlan, UsageProfile, UsageMode, DayKey, WeeklyUsageProfiles, DayType } from './types';
+
+const MODE_RANK: Record<UsageMode, number> = { 'simple': 0, 'weekday-weekend': 1, 'per-day': 2 };
+
+const getRecommendedMode = (plan: PowerPlan): UsageMode => {
+  if (plan.rates.some(r => SPECIFIC_DAY_TYPES.includes(r.dayType as DayType))) return 'per-day';
+  if (plan.rates.some(r => r.dayType === DayType.WEEKDAY || r.dayType === DayType.WEEKEND)) return 'weekday-weekend';
+  return 'simple';
+};
 
 const MODE_OPTIONS: { key: UsageMode; label: string }[] = [
   { key: 'simple', label: 'Same Every Day' },
@@ -53,19 +61,15 @@ const App: React.FC = () => {
     });
   }, [activeDay, usageMode]);
 
-  // Handle mode changes with profile synchronization
+  // Handle mode changes - non-destructive, just switches the view lens
   const handleModeChange = useCallback((newMode: UsageMode) => {
     if (newMode === 'simple') {
-      setWeeklyProfiles(prev => {
-        const profile = prev[activeDay];
-        const updated = {} as WeeklyUsageProfiles;
-        DAY_KEYS.forEach(key => { updated[key] = [...profile]; });
-        return updated;
-      });
       setActiveDay('mon');
     } else if (newMode === 'weekday-weekend') {
-      setActiveDay('mon');
+      // Keep current day but snap to representative
+      setActiveDay(WEEKEND_KEYS.includes(activeDay) ? 'sat' : 'mon');
     }
+    // per-day: keep current activeDay
     setUsageMode(newMode);
   }, [activeDay]);
 
@@ -89,10 +93,25 @@ const App: React.FC = () => {
     }
   }, [cheapestPlanId, selectedPlanId]);
 
+  // Auto-upgrade usage mode if plan requires it
+  const autoSwitchMode = useCallback((plan: PowerPlan) => {
+    const recommended = getRecommendedMode(plan);
+    if (MODE_RANK[recommended] > MODE_RANK[usageMode]) {
+      handleModeChange(recommended);
+    }
+  }, [usageMode, handleModeChange]);
+
   const handleAddPlan = (newPlan: PowerPlan) => {
     setPlans(prev => [...prev, newPlan]);
     setSelectedPlanId(newPlan.id);
+    autoSwitchMode(newPlan);
   };
+
+  const handleSelectPlan = useCallback((id: string) => {
+    setSelectedPlanId(id);
+    const plan = plans.find(p => p.id === id);
+    if (plan) autoSwitchMode(plan);
+  }, [plans, autoSwitchMode]);
 
   const handleDeletePlan = (id: string) => {
       setPlans(prev => prev.filter(p => p.id !== id));
@@ -136,6 +155,7 @@ const App: React.FC = () => {
         if (p.name.toLowerCase().includes('standard')) types.add('Standard');
         if (p.name.toLowerCase().includes('low')) types.add('Low User');
         if (p.rates.length > 1 || p.rates.some(r => r.dayType !== DayType.ALL)) types.add('Time-of-Use');
+        if (p.rates.some(r => SPECIFIC_DAY_TYPES.includes(r.dayType as DayType))) types.add('Per-Day');
         if (p.rates.length === 1 && p.rates[0].startHour === 0 && p.rates[0].endHour === 23 && p.rates[0].dayType === DayType.ALL) types.add('Flat Rate');
       });
       group.planTypes = Array.from(types);
@@ -327,7 +347,7 @@ const App: React.FC = () => {
                   <div
                     key={plan.id}
                     onClick={() => {
-                      setSelectedPlanId(plan.id);
+                      handleSelectPlan(plan.id);
                       setExpandedPlanId(plan.id);
                     }}
                     className={`p-4 rounded-xl border cursor-pointer transition-all hover:scale-[1.02] ${
@@ -370,7 +390,7 @@ const App: React.FC = () => {
                   viewMode={viewMode}
                   cheapestPlanId={cheapestPlanId}
                   selectedPlanId={selectedPlanId}
-                  onSelectPlan={setSelectedPlanId}
+                  onSelectPlan={handleSelectPlan}
                   onDeletePlan={handleDeletePlan}
                   isBestProvider={index === 0}
                   expandedPlanId={expandedPlanId}

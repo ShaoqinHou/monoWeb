@@ -1,5 +1,5 @@
 import { PowerPlan, DayType, DayKey, ZoneColor, CalculationResult, CostCategory, WeeklyUsageProfiles } from '../types';
-import { DAYS_IN_MONTH, WEEKDAYS_IN_MONTH, WEEKENDS_IN_MONTH, DAY_KEYS, WEEKEND_KEYS } from '../constants';
+import { DAYS_IN_MONTH, WEEKDAYS_IN_MONTH, WEEKENDS_IN_MONTH, DAY_KEYS, WEEKEND_KEYS, DAY_KEY_TO_DAY_TYPE } from '../constants';
 
 const getColorHex = (zoneColor: ZoneColor): string => {
   switch (zoneColor) {
@@ -11,13 +11,16 @@ const getColorHex = (zoneColor: ZoneColor): string => {
   }
 };
 
-export const getZoneColorForHour = (plan: PowerPlan, hour: number, isWeekend: boolean = false): string => {
-    const dayType = isWeekend ? DayType.WEEKEND : DayType.WEEKDAY;
-    // Try specific day type first, then fall back to ALL
-    let rate = plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && r.dayType === dayType);
-    if (!rate) {
-        rate = plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && r.dayType === DayType.ALL);
-    }
+// 3-tier rate lookup: specific day (MON/TUE/..) > category (WEEKDAY/WEEKEND) > ALL
+export const findRate = (plan: PowerPlan, hour: number, dayKey: DayKey) => {
+    const specificDayType = DAY_KEY_TO_DAY_TYPE[dayKey];
+    const categoryDayType = WEEKEND_KEYS.includes(dayKey) ? DayType.WEEKEND : DayType.WEEKDAY;
+    const match = (dt: DayType) => plan.rates.find(r => r.startHour <= hour && r.endHour >= hour && r.dayType === dt);
+    return match(specificDayType) || match(categoryDayType) || match(DayType.ALL);
+};
+
+export const getZoneColorForHour = (plan: PowerPlan, hour: number, dayKey: DayKey): string => {
+    const rate = findRate(plan, hour, dayKey);
     if (!rate) return '#94a3b8';
     return getColorHex(rate.zoneColor);
 }
@@ -48,24 +51,8 @@ export const calculateMonthlyCost = (plan: PowerPlan, weeklyProfiles: WeeklyUsag
 
   let totalVariableCost = 0;
 
-  // Helper to find rate
-  const getRateForHour = (hour: number, isWeekend: boolean) => {
-    const dayType = isWeekend ? DayType.WEEKEND : DayType.WEEKDAY;
-    
-    // 1. Specific Day Match
-    let rate = plan.rates.find(
-      (r) => r.startHour <= hour && r.endHour >= hour && r.dayType === dayType
-    );
-
-    // 2. Fallback to ALL
-    if (!rate) {
-      rate = plan.rates.find(
-        (r) => r.startHour <= hour && r.endHour >= hour && r.dayType === DayType.ALL
-      );
-    }
-
-    return rate;
-  };
+  // Helper to find rate - uses shared 3-tier lookup
+  const getRateForHour = (hour: number, dayKey: DayKey) => findRate(plan, hour, dayKey);
 
   // 4. Calculate usage per day of week
   // Each weekday (Mon-Fri) appears WEEKDAYS_IN_MONTH/5 times per month
@@ -74,14 +61,13 @@ export const calculateMonthlyCost = (plan: PowerPlan, weeklyProfiles: WeeklyUsag
   const WEEKEND_DAYS_EACH = WEEKENDS_IN_MONTH / 2;  // 4.5
 
   for (const dayKey of DAY_KEYS) {
-    const isWeekend = WEEKEND_KEYS.includes(dayKey);
-    const daysPerMonth = isWeekend ? WEEKEND_DAYS_EACH : WEEKDAY_DAYS_EACH;
+    const daysPerMonth = WEEKEND_KEYS.includes(dayKey) ? WEEKEND_DAYS_EACH : WEEKDAY_DAYS_EACH;
     const usage = weeklyProfiles[dayKey];
 
     for (let hour = 0; hour < 24; hour++) {
       const kwhPerDay = usage[hour];
       const totalKwh = kwhPerDay * daysPerMonth;
-      const rateObj = getRateForHour(hour, isWeekend);
+      const rateObj = getRateForHour(hour, dayKey);
 
       if (rateObj) {
         const cost = totalKwh * rateObj.rateCents;
