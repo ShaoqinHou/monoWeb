@@ -1,0 +1,5 @@
+{
+  "name": "Power Plan AI Comparator",
+  "description": "Compare electricity plans dynamically. Paint your usage profile and use Gemini AI to import any power plan text into a calculable format.",
+  "requestFramePermissions": []
+}
