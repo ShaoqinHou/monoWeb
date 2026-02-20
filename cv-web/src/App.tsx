@@ -125,7 +125,7 @@ function App() {
               <ProjectLink id="dnar">Master's dissertation</ProjectLink> trained Graph Neural Networks with attention-based message passing to learn A* pathfinding — enough to understand training pipelines, model architecture, and generalisation, and enough to adapt to different domains.
             </p>
             <p>
-              On the development workflow side, I use Claude Code extensively — to the point of hitting 90% of my Claude Max plan's weekly limit by day five, across four concurrent projects. But I want to be clear about what that means: the{' '}
+              On the development workflow side, I use Claude Code extensively — to the point of hitting 90% of my Claude Max (400 NZD) plan's weekly limit by day five, across four concurrent projects. But I want to be clear about what that means: the{' '}
               <ProjectLink id="xero-replica">Xero Replica</ProjectLink> demonstrates the methodology. It reached roughly 90% of its current state from about an hour of initial research, exploration, and test setup — then ran for seven hours straight with no human in the loop. It operates under seven self-correcting hooks, enforces TDD with blocking test gates, and uses a Playwright audit pipeline that compares output against the real product. The codebase has 2,866 tests across 272 files. That's not "vibe coding" — it's using AI as a disciplined engineering multiplier. I started that project this week.
             </p>
             <p>
@@ -144,8 +144,8 @@ function App() {
         <Section title="Development Workflow">
           <div className="text-[15px] leading-relaxed text-slate-300 space-y-4">
             <p>
-              <span className="font-semibold text-slate-200">Architecture first, then TDD.</span>{' '}
-              Just giving an AI agent a brief goal is not enough. Without a detailed architecture design up front, it will pick arbitrary — sometimes mixed — approaches for no reason. This was significantly worse with earlier models in early 2025, and while later models are better, the problem hasn't disappeared. Equally important are detailed requirements: if you describe 100 features loosely, the AI might deliver 20 and interpret the rest differently from what you intended. The architecture document and feature specification exist to constrain the AI toward your actual goal before any code is written.
+              <span className="font-semibold text-slate-200">Fast prototyping, then TDD.</span>{' '}
+              To set expectations: the <ProjectLink id="xero-replica">Xero Replica</ProjectLink> reached roughly 90% of its current state from about an hour of back-and-forth research, exploration, and test setup — followed by seven hours of fully autonomous agent execution with no human input. That's the speed this workflow enables. But speed without structure produces chaos. Just giving an AI agent a brief goal is not enough. Without a detailed architecture design up front, it will pick arbitrary — sometimes mixed — approaches for no reason. This was significantly worse with earlier models in early 2025, and while later models are better, the problem hasn't disappeared. Equally important are detailed requirements: if you describe 100 features loosely, the AI might deliver 20 and interpret the rest differently from what you intended. The architecture document and feature specification exist to constrain the AI toward your actual goal before any code is written.
             </p>
             <p>
               <span className="font-semibold text-slate-200">AI-assisted test writing.</span>{' '}
@@ -158,7 +158,7 @@ function App() {
             </p>
             <p>
               <span className="font-semibold text-slate-200">Six months of iteration.</span>{' '}
-              I've been using this type of workflow for a little over half a year. My workflow itself hasn't changed much — the improvements come from the tooling side. Model quality keeps improving. MCP landed around October and brought proper tool use and code execution. Agent teams were introduced recently and are substantially better than the previous sub-agent system for this kind of coordinated development, despite some drawbacks. The broader trend is that these tools are adapting themselves to users, not just the other way around. More people with less LLM-specific programming experience can use them effectively now.
+              I've been using this type of workflow for a little over half a year. My workflow itself hasn't changed much — the improvements come from the tooling side. Model quality keeps improving. Around October, MCP and the skill system both received significant upgrades — improved tool use, better code execution, more reliable dynamic discovery. Agent teams were introduced more recently and are substantially better than the previous sub-agent system for this kind of coordinated development, despite some drawbacks. The broader trend is that these tools are adapting themselves to users, not just the other way around. More people with less LLM-specific programming experience can use them effectively now.
             </p>
             <p>
               <span className="font-semibold text-slate-200">Customisation and trust trade-offs.</span>{' '}
@@ -271,7 +271,7 @@ function ProjectDetailView({ project, onClose }: { project: Project; onClose: ()
       <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 shrink-0">
         <button
           onClick={(e) => { e.stopPropagation(); onClose(); }}
-          className="flex items-center gap-2 text-base font-semibold text-white bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition-colors cursor-pointer"
+          className="flex items-center gap-2 text-base font-bold text-white bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg transition-colors cursor-pointer shadow-lg"
         >
           <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 4L6 10L12 16" />
