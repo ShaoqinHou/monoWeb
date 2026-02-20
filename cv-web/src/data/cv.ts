@@ -53,6 +53,40 @@ export const interests = [
 
 export const projects: Project[] = [
   {
+    id: 'xero-replica',
+    title: 'Xero Replica',
+    subtitle: 'Full-Stack Accounting SPA',
+    year: '2026',
+    tech: ['React', 'TypeScript', 'Hono', 'SQLite', 'Tailwind CSS', 'Claude Code'],
+    bullets: [
+      'Architected a monorepo (web / api / shared) replicating Xero\'s accounting platform: invoices, bills, contacts, payroll, reporting, bank reconciliation, and 15+ feature modules with shared Zod schemas enforcing identical validation on client and server',
+      'Designed an AI-driven TDD workflow where Claude Code operates under seven self-correcting hooks: post-edit behavioural checks, agent team rule injection, blocking test gates on task completion, and a mandatory browser verification gate before session end',
+      'Built a Playwright-based audit pipeline (/audit-xero \u2192 /audit-replica \u2192 /ux-compare) that captures live Xero\'s DOM structure, API field shapes, and combobox options, then diffs against the replica to produce a prioritised fix list',
+      'Codebase reached 272 test files and 2,866 tests with parallel agent team coordination: nine feature agents each run only their own ~40 tests, while the lead agent runs the full suite once at the end \u2014 replacing what would otherwise be 9 agents x 3 runs x 2,866 tests each',
+    ],
+    type: 'live',
+    embedUrl: import.meta.env.DEV ? 'http://localhost:5174' : '/invoice-app/',
+    description:
+      'A full-stack replica of Xero\'s accounting platform built as a monorepo with three packages: a React SPA frontend, a Hono API server with SQLite, and shared Zod schemas for identical validation on client and server. Features 15+ modules including invoices, bills, contacts, payroll, reporting, and bank reconciliation. Development used an AI-driven TDD workflow with Claude Code operating under self-correcting hooks and a Playwright-based audit pipeline that compares the replica against live Xero to produce prioritised fix lists.',
+  },
+  {
+    id: 'invoice-extractor',
+    title: 'Invoice Extractor',
+    subtitle: 'Template-Free Document Processing',
+    year: '2026',
+    tech: ['React', 'TypeScript', 'Hono', 'SQLite', 'Python', 'Tesseract', 'PaddleOCR', 'LLM Tool Calling'],
+    bullets: [
+      'Replaced traditional template-matching extraction (which requires a fixed layout per supplier) with an LLM agentic loop: the model receives raw OCR text plus three investigation tools (page lookup, text search, context retrieval), reasons about the document\'s structure across multiple turns, then calls a structured submit_invoice tool \u2014 handling any supplier, any layout, and any content complexity without per-format configuration',
+      'Handles multi-service invoices that defeat conventional parsers: a combined utilities bill with broadband charges, electricity usage (kWh rates, meter readings, billing periods), previous balance adjustments, and discounts is automatically decomposed into semantically grouped entries with consistent per-group attrs columns, ready for tabular display',
+      'Built a three-tier OCR pipeline (PyMuPDF text-layer extraction \u2192 Tesseract with confidence scoring \u2192 PaddleOCR deep learning fallback) that accepts any input format \u2014 PDF with embedded text, scanned documents, and phone photos (HEIC/JPG) \u2014 with automatic quality assessment and cross-referencing between tiers to catch OCR errors before they reach the LLM',
+      'Designed the pipeline as persistent Python workers communicating via NDJSON over stdin/stdout, with semaphore-based concurrency control and idle auto-shutdown, feeding into a two-page review UI where extracted data is prefetched into the query cache so fields appear instantly when the user clicks an invoice',
+    ],
+    type: 'live',
+    embedUrl: import.meta.env.DEV ? 'http://localhost:5175' : '/invoice-extractor/',
+    description:
+      'A template-free invoice extraction system that uses an LLM agentic loop instead of traditional per-supplier template matching. The model receives raw OCR text and three investigation tools, reasons about document structure across multiple turns, then submits structured data. Features a three-tier OCR pipeline (PyMuPDF, Tesseract, PaddleOCR) accepting any input format. Note: currently uses GLM-5 as the LLM provider, which runs at roughly 14 tokens/sec \u2014 so even a simple text document may take about a minute to process. Switching to a faster provider would dramatically improve speed.',
+  },
+  {
     id: 'dnar',
     title: 'DNAR-A*',
     subtitle: 'Neural Pathfinding Framework',
@@ -103,7 +137,7 @@ export const projects: Project[] = [
     id: 'notepiece',
     title: 'NotePiece',
     subtitle: 'Browser Based Music Sequencer',
-    year: '2024–2025',
+    year: '2024\u20132025',
     tech: ['React', 'TypeScript', 'Web Audio API'],
     bullets: [
       'Built audio synthesis engine using Web Audio API with polyphonic voice management',

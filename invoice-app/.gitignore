@@ -1,0 +1,97 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+test-results.json
+test-results.txt
+vitest-web-output.txt
+
+# next.js (legacy — no longer used)
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+paddle_stderr.txt
+
+# env files
+.env
+.env.local
+.env.example
+
+# uploads & data
+/uploads/
+/data/
+invoices.db
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# verification screenshots (session-specific, not source)
+verify-*.png
+/verify-screenshots/
+/screenshots/
+
+# workflow markers (session-specific)
+.claude/workflow/verify-marker.txt
+.claude/workflow/test-result.txt
+
+# python cache
+__pycache__/
+*.pyc
+
+# temporary scripts
+count-files.ps1
+test-pl.js
+test_*.py
+reprocess-all.mjs
+reupload-unique.mjs
+dedup.mjs
+find-dupes.mjs
+run-tests-marker.mjs
+
+# database files
+*.db
+*.db-shm
+*.db-wal
+packages/api/data/
+
+# screenshots (not source code)
+*.png
+!public/*.png
+
+# python scripts (OCR experimentation, not part of app)
+/scripts/
+
+# xero design reference image
+.claude/workflow/design/xero-homepage.png
+
+# legacy Next.js app (pre-monorepo, now in packages/)
+/src/
+/next.config.ts
+/postcss.config.mjs
+/drizzle.config.ts
+/public/

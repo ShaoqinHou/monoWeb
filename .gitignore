@@ -8,3 +8,12 @@ dist-ssr
 .env.*
 .playwright-mcp
 .claude/
+*.db
+*.db-shm
+*.db-wal
+uploads/
+*.tsbuildinfo
+*.pyc
+__pycache__/
+.vscode/
+.next/

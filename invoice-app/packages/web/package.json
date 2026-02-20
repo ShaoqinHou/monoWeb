@@ -1,0 +1,44 @@
+{
+  "name": "@xero-replica/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.90.0",
+    "@tanstack/react-router": "^1.120.0",
+    "@xero-replica/shared": "*",
+    "clsx": "^2.1.1",
+    "hono": "^4.7.0",
+    "lucide-react": "^0.500.0",
+    "playwright": "^1.58.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.56.0",
+    "recharts": "^2.15.0",
+    "tailwind-merge": "^3.4.1",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "@xero-replica/api": "^0.1.0",
+    "autoprefixer": "^10.4.0",
+    "jsdom": "^26.1.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.9.0",
+    "vite": "^6.3.0",
+    "vitest": "^4.0.0"
+  }
+}
