@@ -1,7 +1,6 @@
 [submodule "invoice-app"]
 	path = invoice-app
 	url = https://github.com/ShaoqinHou/invoice-app.git
-	branch = feat/cv-integration
 [submodule "invoice-extractor"]
 	path = invoice-extractor
 	url = https://github.com/ShaoqinHou/invoice-extractor.git
