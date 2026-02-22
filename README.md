@@ -1,113 +1,165 @@
 # monoWeb
 
-Mono repo hosting three projects: an interactive CV site and two live web apps that embed directly into it.
+Mono repo hosting an interactive CV site and several live web apps that embed directly into it. Some sub-apps live in their own repos and are linked here as **git submodules**.
 
 ## Projects
 
 ### cv-web
-Interactive web CV for Shaoqin Hou. Clean single page layout with all CV sections. Clicking a project opens a full screen detail view. The two apps below embed as live demos via iframe — click "Try it live" on their project cards to launch them inside the CV.
+Interactive web CV for Shaoqin Hou. Clean single page layout with all CV sections. Clicking a project opens a full screen detail view. The apps below embed as live demos via iframe — click "Try it live" on their project cards to launch them inside the CV.
 
 - **Tech:** React, TypeScript, Vite, Tailwind CSS
-- **Port:** 3002
+- **Lives in:** this repo (direct)
+
+### invoice-app _(submodule)_
+1:1 replica of the Xero web application (UI + features). Full accounting app with invoices, bills, contacts, bank reconciliation, payroll, projects, and reporting.
+
+- **Tech:** React, TypeScript, Vite, TanStack Router/Query, Hono API, SQLite, Drizzle
+- **Repo:** [ShaoqinHou/invoice-app](https://github.com/ShaoqinHou/invoice-app)
+
+### invoice-extractor _(submodule)_
+AI-powered invoice processing app. Upload PDF invoices, AI extracts structured data (vendor, amounts, line items), human reviews and approves.
+
+- **Tech:** React, TypeScript, Vite, Hono API, SQLite, Anthropic/Google AI
+- **Repo:** [ShaoqinHou/invoice-extractor](https://github.com/ShaoqinHou/invoice-extractor)
 
 ### pdf-ai-assistant
-Client side PDF manipulation tool with an AI powered natural language interface. Users give commands like "Merge pages 1-2 of Report A with page 3 of Report B" and Gemini function calling chains the operations autonomously. All processing runs in browser, no server uploads.
+Client-side PDF manipulation tool with an AI-powered natural language interface. All processing runs in browser, no server uploads.
 
-- **Tech:** React, TypeScript, Vite, Tailwind CSS, Google Gemini API, pdf-lib, PDF.js, dnd-kit
-- **Port:** 3001
+- **Tech:** React, TypeScript, Vite, Tailwind CSS, Google Gemini API, pdf-lib, PDF.js
+- **Lives in:** this repo (direct)
 - **Requires:** `GEMINI_API_KEY` in `.env.local`
 
 ### power-plan-ai-comparator
-AI powered electricity plan comparison tool for the NZ energy market. Users draw hourly usage on an interactive graph and compare costs across 15+ provider plans. Paste a screenshot of any power plan and AI extracts the rates automatically.
+AI-powered electricity plan comparison tool for the NZ energy market.
 
 - **Tech:** React, TypeScript, Vite, Tailwind CSS, Google Gemini API
-- **Port:** 3000
+- **Lives in:** this repo (direct)
 - **Requires:** `GEMINI_API_KEY` in `.env.local`
+
+---
+
+## Git Submodules Workflow
+
+`invoice-app` and `invoice-extractor` are git submodules — they have their own repos but appear as directories inside monoWeb.
+
+### Clone (first time)
+
+```bash
+# Always use --recurse-submodules, otherwise submodule dirs will be empty
+git clone --recurse-submodules https://github.com/ShaoqinHou/monoWeb.git
+```
+
+If you already cloned without `--recurse-submodules`:
+```bash
+git submodule update --init --recursive
+```
+
+### Develop inside a sub-app
+
+Sub-app directories are full git repos. Just `cd` in and work normally:
+
+```bash
+cd invoice-app
+# edit files...
+git add -A && git commit -m "Fix something" && git push
+```
+
+This pushes to the sub-app's own repo (e.g. `ShaoqinHou/invoice-app`).
+
+### Update monoWeb pointer after sub-app changes
+
+After pushing changes inside a sub-app, monoWeb's pointer is outdated. Update it:
+
+```bash
+cd ..   # back to monoWeb root
+git add invoice-app
+git commit -m "Update invoice-app"
+git push
+```
+
+### Pull latest sub-app changes (from another machine or contributor)
+
+`git pull` on monoWeb does NOT auto-update submodules. You need:
+
+```bash
+git pull
+git submodule update --init --recursive
+```
+
+Or to pull the latest from the sub-app's remote (even if monoWeb hasn't updated its pointer yet):
+
+```bash
+git submodule update --remote invoice-app
+```
+
+### Quick reference
+
+| Task | Command |
+|------|---------|
+| Clone with submodules | `git clone --recurse-submodules <url>` |
+| Init submodules after clone | `git submodule update --init --recursive` |
+| Check submodule status | `git submodule status` |
+| Pull latest sub-app from remote | `git submodule update --remote <name>` |
+| Update monoWeb pointer | `git add <name> && git commit && git push` |
+| See which commit submodule points to | `git submodule status` |
+
+---
 
 ## Development
 
-### Install all
+### Install
 
 ```bash
+cd cv-web && npm install && cd ..
 cd pdf-ai-assistant && npm install && cd ..
 cd power-plan-ai-comparator && npm install && cd ..
-cd cv-web && npm install && cd ..
+
+# Submodules (if you need to run them locally)
+cd invoice-app && npm install && cd ..
+cd invoice-extractor && npm install && cd ..
 ```
 
-### Run all (three terminals)
+### Run (dev)
 
 ```bash
-# Terminal 1
-cd pdf-ai-assistant && npm run dev
-
-# Terminal 2
-cd power-plan-ai-comparator && npm run dev
-
-# Terminal 3
+# cv-web
 cd cv-web && npm run dev
+
+# Sub-apps (each in their own terminal)
+cd invoice-app && npm run dev:all
+cd invoice-extractor && npm run dev
 ```
 
-All three must be running for the CV live demos to work. The cv-web app embeds the other two via iframe using `http://localhost:3001` and `http://localhost:3000` in dev mode.
-
-### Build each
+### Build
 
 ```bash
-cd pdf-ai-assistant && npm run build      # outputs to pdf-ai-assistant/dist/
-cd power-plan-ai-comparator && npm run build  # outputs to power-plan-ai-comparator/dist/
-cd cv-web && npm run build                # outputs to cv-web/dist/
+cd cv-web && npm run build                         # outputs to cv-web/dist/
+cd pdf-ai-assistant && npm run build               # outputs to pdf-ai-assistant/dist/
+cd power-plan-ai-comparator && npm run build       # outputs to power-plan-ai-comparator/dist/
 ```
 
-## Deploy (all together)
+---
 
-When deployed, the CV app expects the other two apps to be served as subpaths on the same domain:
+## Deploy
+
+All apps are served under a single domain (`cv.rehou.games`):
 
 ```
-yoursite.com/                     → cv-web
-yoursite.com/pdf-ai-assistant/    → pdf-ai-assistant
-yoursite.com/power-plan-ai-comparator/ → power-plan-ai-comparator
+cv.rehou.games/                          → cv-web
+cv.rehou.games/invoice-app/              → invoice-app
+cv.rehou.games/invoice-extractor/        → invoice-extractor
+cv.rehou.games/pdf-ai-assistant/         → pdf-ai-assistant
+cv.rehou.games/power-plan-ai-comparator/ → power-plan-ai-comparator
 ```
 
-The cv-web app automatically switches iframe URLs from localhost ports (dev) to these relative paths (production).
-
-### Steps
-
-1. Set the `base` option in each app's `vite.config.ts` for production subpaths:
-
-   **pdf-ai-assistant/vite.config.ts** — add `base: '/pdf-ai-assistant/'`
-
-   **power-plan-ai-comparator/vite.config.ts** — add `base: '/power-plan-ai-comparator/'`
-
-   **cv-web/vite.config.ts** — leave as default (`/`)
-
-2. Build all three:
-
-   ```bash
-   cd pdf-ai-assistant && npm run build
-   cd ../power-plan-ai-comparator && npm run build
-   cd ../cv-web && npm run build
-   ```
-
-3. Assemble into a single output directory:
-
-   ```bash
-   mkdir -p deploy
-   cp -r cv-web/dist/* deploy/
-   cp -r pdf-ai-assistant/dist deploy/pdf-ai-assistant
-   cp -r power-plan-ai-comparator/dist deploy/power-plan-ai-comparator
-   ```
-
-4. Serve the `deploy/` folder with any static host (Nginx, Cloudflare Pages, Vercel, Netlify, etc.). All three apps are static — no server needed.
+The cv-web app automatically switches iframe URLs from localhost (dev) to these relative paths (production).
 
 ### Environment variables
 
-Both pdf-ai-assistant and power-plan-ai-comparator need a `GEMINI_API_KEY`. In production these are baked in at build time via Vite's `define` config. Set the env var before building:
+Both pdf-ai-assistant and power-plan-ai-comparator need a `GEMINI_API_KEY`. Set before building:
 
 ```bash
 export GEMINI_API_KEY=your_key_here
 ```
 
-Or create a `.env.local` file in each project directory:
-
-```
-GEMINI_API_KEY=your_key_here
-```
+Or create a `.env.local` file in each project directory.
