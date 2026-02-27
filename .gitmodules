@@ -4,3 +4,6 @@
 [submodule "invoice-extractor"]
 	path = invoice-extractor
 	url = https://github.com/ShaoqinHou/invoice-extractor.git
+[submodule "codegraph"]
+	path = codegraph
+	url = https://github.com/ShaoqinHou/codegraph.git
