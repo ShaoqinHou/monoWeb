@@ -10,3 +10,6 @@
 [submodule "flow-cards"]
 	path = flow-cards
 	url = https://github.com/ShaoqinHou/flow-cards.git
+[submodule "grid-puzzles"]
+	path = grid-puzzles
+	url = https://github.com/ShaoqinHou/grid-puzzles.git
