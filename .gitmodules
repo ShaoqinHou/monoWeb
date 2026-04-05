@@ -7,3 +7,6 @@
 [submodule "codegraph"]
 	path = codegraph
 	url = https://github.com/ShaoqinHou/codegraph.git
+[submodule "flow-cards"]
+	path = flow-cards
+	url = https://github.com/ShaoqinHou/flow-cards.git
