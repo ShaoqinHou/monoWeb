@@ -13,3 +13,9 @@
 [submodule "grid-puzzles"]
 	path = grid-puzzles
 	url = https://github.com/ShaoqinHou/grid-puzzles.git
+[submodule "nexus"]
+	path = nexus
+	url = https://github.com/ShaoqinHou/nexus.git
+[submodule "hex-empires"]
+	path = hex-empires
+	url = https://github.com/ShaoqinHou/hex-empires.git
